@@ -15,7 +15,6 @@ table { border-collapse: collapse; margin-top:15px; background:white; width:100%
 th, td { border:1px solid #ccc; padding:6px 12px; text-align:center; }
 th { background:#2e7d32; color:white; }
 .total { margin-top:10px; font-weight:bold; }
-.muted { font-size:13px; color:#666; }
 .delete-btn { background:#d32f2f; color:white; border:none; cursor:pointer; padding:3px 6px; border-radius:3px; font-size:12px; }
 .delete-btn:hover { background:#b71c1c; }
 </style>
@@ -23,36 +22,15 @@ th { background:#2e7d32; color:white; }
 <body>
 <h1>🏢 Apartamente + 🏭 Depozit + 🧺 Laverie</h1>
 
-<!-- LOGIN -->
-<section id="login-area">
-  <div id="not-logged">
-    <input id="login-username" placeholder="Username"><br>
-    <input id="login-password" placeholder="Parolă" type="password"><br>
-    <button id="login-btn">Loghează</button>
-    <button id="show-register-btn">Înregistrează</button>
-    <div id="register-area" style="display:none;margin-top:10px;">
-      <input id="reg-username" placeholder="Username"><br>
-      <input id="reg-password" placeholder="Parolă" type="password"><br>
-      <button id="register-btn">Creează cont</button>
-      <button id="cancel-register">Anulează</button>
-      <div id="reg-msg" class="muted"></div>
-    </div>
-  </div>
-  <div id="logged" style="display:none;">
-    <p class="muted">Logat ca <strong id="me-username"></strong></p>
-    <button id="logout-btn">Deconectează</button>
-  </div>
-</section>
-
 <!-- APARTAMENTE -->
-<section id="apartamente-area" style="display:none;">
+<section id="apartamente-area">
   <h2>🏢 Apartamente</h2>
   <input type="date" id="work-date">
   <input type="time" id="start-hour" placeholder="Început">
   <input type="time" id="end-hour" placeholder="Sfârșit">
   <input type="text" id="work-place" placeholder="Locul de muncă">
   <input type="number" id="hourly-rate" placeholder="Plata/oră (€)">
-  <button onclick="addEntry('main')">Adaugă zi</button>
+  <button onclick="addEntry('apartamente')">Adaugă zi</button>
 
   <table>
     <thead>
@@ -60,20 +38,20 @@ th { background:#2e7d32; color:white; }
         <th>#</th><th>Data</th><th>De la</th><th>Până la</th><th>Ore</th><th>Loc</th><th>€/oră</th><th>Total</th><th>Șterge</th>
       </tr>
     </thead>
-    <tbody id="timesheet-table"></tbody>
+    <tbody id="apartamente-table"></tbody>
   </table>
-  <div class="total" id="total">Total Apartamente: 0 €</div>
+  <div class="total" id="apartamente-total">Total Apartamente: 0 €</div>
 </section>
 
 <!-- DEPOZIT -->
-<section id="depozit-area" style="display:none;">
+<section id="depozit-area">
   <h2>🏭 Depozit</h2>
-  <input type="date" id="garaj-date">
-  <input type="time" id="garaj-start" placeholder="Început">
-  <input type="time" id="garaj-end" placeholder="Sfârșit">
-  <input type="text" id="garaj-desc" placeholder="Activitate (ex: sortare materiale)">
-  <input type="number" id="garaj-rate" placeholder="Plata/oră (€)">
-  <button onclick="addEntry('garaj')">Adaugă zi Depozit</button>
+  <input type="date" id="depozit-date">
+  <input type="time" id="depozit-start" placeholder="Început">
+  <input type="time" id="depozit-end" placeholder="Sfârșit">
+  <input type="text" id="depozit-desc" placeholder="Activitate">
+  <input type="number" id="depozit-rate" placeholder="Plata/oră (€)">
+  <button onclick="addEntry('depozit')">Adaugă zi Depozit</button>
 
   <table>
     <thead>
@@ -81,130 +59,127 @@ th { background:#2e7d32; color:white; }
         <th>#</th><th>Data</th><th>De la</th><th>Până la</th><th>Ore</th><th>Activitate</th><th>€/oră</th><th>Total</th><th>Șterge</th>
       </tr>
     </thead>
-    <tbody id="garaj-table"></tbody>
+    <tbody id="depozit-table"></tbody>
   </table>
-  <div class="total" id="garaj-total">Total Depozit: 0 €</div>
+  <div class="total" id="depozit-total">Total Depozit: 0 €</div>
 </section>
 
 <!-- LAVERIE -->
-<section id="laverie-area" style="display:none;">
+<section id="laverie-area">
   <h2>🧺 Laverie</h2>
   <label>Suma primită de la șef (€):</label>
   <input type="number" id="suma-sef" placeholder="Ex: 100">
   <button onclick="adaugaSuma()">Adaugă / Actualizează</button>
   <hr>
   <input type="number" id="cheltuiala" placeholder="Cheltuială (€)">
-  <input type="text" id="descriere" placeholder="Descriere (ex: detergent)">
+  <input type="text" id="descriere" placeholder="Descriere">
   <button onclick="adaugaCheltuiala()">Adaugă cheltuială</button>
 
   <table>
     <thead>
       <tr><th>#</th><th>Descriere</th><th>Suma</th><th>Șterge</th></tr>
     </thead>
-    <tbody id="tabel-cheltuieli"></tbody>
+    <tbody id="laverie-table"></tbody>
   </table>
-  <div class="total" id="total-cheltuieli">Total cheltuit: 0 € | Rămas: 0 €</div>
+  <div class="total" id="laverie-total">Total cheltuit: 0 € | Rămas: 0 €</div>
 </section>
 
 <script>
-// SHA-256
-async function sha256Hex(str){
-  const utf8=new TextEncoder().encode(str);
-  const hash=await crypto.subtle.digest('SHA-256',utf8);
-  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-
-// Storage
-const STORAGE_USERS='timesheet_users';
-function loadUsers(){return JSON.parse(localStorage.getItem(STORAGE_USERS)||'{}');}
-function saveUsers(users){localStorage.setItem(STORAGE_USERS,JSON.stringify(users));}
-
-// Elemente
-const loginUsername=document.getElementById('login-username');
-const loginPassword=document.getElementById('login-password');
-const loginBtn=document.getElementById('login-btn');
-const showRegBtn=document.getElementById('show-register-btn');
-const registerArea=document.getElementById('register-area');
-const regUsername=document.getElementById('reg-username');
-const regPassword=document.getElementById('reg-password');
-const registerBtn=document.getElementById('register-btn');
-const cancelRegister=document.getElementById('cancel-register');
-const regMsg=document.getElementById('reg-msg');
-const notLoggedDiv=document.getElementById('not-logged');
-const loggedDiv=document.getElementById('logged');
-const meUsernameEl=document.getElementById('me-username');
-const logoutBtn=document.getElementById('logout-btn');
-
-const apartamenteArea=document.getElementById('apartamente-area');
-const depozitArea=document.getElementById('depozit-area');
-const laverieArea=document.getElementById('laverie-area');
-
-let currentUser=null;
-let userData={timesheet:[], garaj:[], cheltuieli:[], sumaSef:0};
-
-// Register / Login
-showRegBtn.onclick=()=>registerArea.style.display='block';
-cancelRegister.onclick=()=>{registerArea.style.display='none'; regMsg.textContent='';};
-
-registerBtn.onclick=async()=>{
-  const u=regUsername.value.trim();
-  const p=regPassword.value;
-  if(!u||!p){regMsg.textContent='Completează toate câmpurile!'; return;}
-  const users=loadUsers();
-  if(users[u]){regMsg.textContent='Username deja folosit!'; return;}
-  const hash=await sha256Hex(p);
-  users[u]={passHash:hash, timesheet:[], garaj:[], cheltuieli:[], sumaSef:0};
-  saveUsers(users);
-  regMsg.textContent='Cont creat! Poți să te loghezi.';
-  registerArea.style.display='none';
-  regUsername.value=''; regPassword.value='';
+//=== Date stocate ===
+let dataStore = {
+  apartamente: JSON.parse(localStorage.getItem('apartamente')) || [],
+  depozit: JSON.parse(localStorage.getItem('depozit')) || [],
+  laverie: JSON.parse(localStorage.getItem('laverie')) || [],
+  sumaSef: parseFloat(localStorage.getItem('sumaSef')) || 0
 };
 
-loginBtn.onclick=async()=>{
-  const u=loginUsername.value.trim();
-  const p=loginPassword.value;
-  if(!u||!p){alert("Completează username și parolă!"); return;}
-  const users=loadUsers();
-  if(!users[u]){alert("Utilizator inexistent!"); return;}
-  const hash=await sha256Hex(p);
-  if(hash!==users[u].passHash){alert("Parolă greșită!"); return;}
-  currentUser=u;
-  userData=JSON.parse(JSON.stringify(users[u]));
-  localStorage.setItem('currentUser', currentUser);
-  onLogin();
-  loginUsername.value=''; loginPassword.value='';
-};
-
-logoutBtn.onclick=()=>{
-  currentUser=null;
-  localStorage.removeItem('currentUser');
-  notLoggedDiv.style.display='block';
-  loggedDiv.style.display='none';
-  apartamenteArea.style.display='none';
-  depozitArea.style.display='none';
-  laverieArea.style.display='none';
-};
-
-// On load
-window.onload=()=>{
-  const savedUser=localStorage.getItem('currentUser');
-  const users=loadUsers();
-  if(savedUser && users[savedUser]){
-    currentUser=savedUser;
-    userData=users[savedUser];
-    onLogin();
+//=== Funcții adăugare ===
+function addEntry(type){
+  let date, start, end, desc, rate;
+  if(type==='apartamente'){
+    date=document.getElementById('work-date').value;
+    start=document.getElementById('start-hour').value;
+    end=document.getElementById('end-hour').value;
+    desc=document.getElementById('work-place').value;
+    rate=parseFloat(document.getElementById('hourly-rate').value) || 0;
+  } else {
+    date=document.getElementById('depozit-date').value;
+    start=document.getElementById('depozit-start').value;
+    end=document.getElementById('depozit-end').value;
+    desc=document.getElementById('depozit-desc').value;
+    rate=parseFloat(document.getElementById('depozit-rate').value) || 0;
   }
-};
-
-function onLogin(){
-  notLoggedDiv.style.display='none';
-  loggedDiv.style.display='block';
-  apartamenteArea.style.display='block';
-  depozitArea.style.display='block';
-  laverieArea.style.display='block';
-  meUsernameEl.textContent=currentUser;
+  if(!date||!start||!end||!desc||!rate){ alert("Completează toate câmpurile!"); return; }
+  let hours=(new Date(date+'T'+end)-new Date(date+'T'+start))/3600000;
+  if(hours<0) hours=0;
+  const total=(hours*rate).toFixed(2);
+  const entry={date,start,end,desc,hours:hours.toFixed(2),rate,total};
+  dataStore[type].push(entry);
+  localStorage.setItem(type,JSON.stringify(dataStore[type]));
   renderTables();
 }
 
-// Salvează date
-function saveUser(){const users=loadUsers(); users[currentUser]=userData; saveUsers(users);}
+function renderTables(){
+  function render(type, tableId, totalId){
+    const tbody=document.getElementById(tableId);
+    tbody.innerHTML='';
+    let sum=0;
+    dataStore[type].forEach((e,i)=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${i+1}</td><td>${e.date}</td><td>${e.start}</td><td>${e.end}</td><td>${e.hours}</td><td>${e.desc}</td><td>${e.rate}</td><td>${e.total}</td><td><button class="delete-btn" onclick="delEntry('${type}',${i})">X</button></td>`;
+      tbody.appendChild(tr);
+      sum+=parseFloat(e.total);
+    });
+    document.getElementById(totalId).textContent=`Total ${type==='apartamente'?'Apartamente':'Depozit'}: ${sum.toFixed(2)} €`;
+  }
+  render('apartamente','apartamente-table','apartamente-total');
+  render('depozit','depozit-table','depozit-total');
+
+  // Laverie
+  const tbodyL=document.getElementById('laverie-table');
+  tbodyL.innerHTML='';
+  let cheltuit=0;
+  dataStore.laverie.forEach((e,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${i+1}</td><td>${e.desc}</td><td>${e.suma}</td><td><button class="delete-btn" onclick="delEntryLaverie(${i})">X</button></td>`;
+    tbodyL.appendChild(tr);
+    cheltuit+=parseFloat(e.suma);
+  });
+  document.getElementById('laverie-total').textContent=`Total cheltuit: ${cheltuit.toFixed(2)} € | Rămas: ${(dataStore.sumaSef-cheltuit).toFixed(2)} €`;
+}
+
+//=== Ștergere ===
+function delEntry(type,i){
+  dataStore[type].splice(i,1);
+  localStorage.setItem(type,JSON.stringify(dataStore[type]));
+  renderTables();
+}
+function delEntryLaverie(i){
+  dataStore.laverie.splice(i,1);
+  localStorage.setItem('laverie',JSON.stringify(dataStore.laverie));
+  renderTables();
+}
+
+//=== Laverie ===
+function adaugaSuma(){
+  let s=parseFloat(document.getElementById('suma-sef').value) || 0;
+  dataStore.sumaSef+=s;
+  localStorage.setItem('sumaSef',dataStore.sumaSef);
+  renderTables();
+}
+function adaugaCheltuiala(){
+  let s=parseFloat(document.getElementById('cheltuiala').value) || 0;
+  let d=document.getElementById('descriere').value;
+  if(!s||!d){alert("Completează cheltuiala și descrierea!"); return;}
+  dataStore.laverie.push({desc:d,suma:s});
+  localStorage.setItem('laverie',JSON.stringify(dataStore.laverie));
+  renderTables();
+  document.getElementById('cheltuiala').value='';
+  document.getElementById('descriere').value='';
+}
+
+//=== Inițializare ===
+renderTables();
+</script>
+</body>
+</html>
