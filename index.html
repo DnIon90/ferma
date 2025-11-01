@@ -3,31 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Foaie Pontaj cu Cheltuieli</title>
+<title>Pontaj + Garaj + Cheltuieli</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f0f0; padding:20px; }
 h1,h2 { color:#2e7d32; }
 input,button { padding:6px; margin:5px 0; border-radius:4px; border:1px solid #ccc; width:100%; max-width:220px; }
 button { background:#2e7d32; color:white; border:none; cursor:pointer; }
 button:hover { background:#1b5e20; }
-#login-area,#pontaj-area,#cheltuieli-area { margin-bottom:25px; background:white; padding:15px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.1); }
+section { margin-bottom:25px; background:white; padding:15px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.1); }
 table { border-collapse: collapse; margin-top:15px; background:white; width:100%; max-width:700px; }
 th, td { border:1px solid #ccc; padding:6px 12px; text-align:center; }
 th { background:#2e7d32; color:white; }
-#total, #total-cheltuieli { margin-top:10px; font-weight:bold; }
+.total { margin-top:10px; font-weight:bold; }
 .muted { font-size:13px; color:#666; }
-.edit-btn, .delete-btn { padding:3px 6px; margin:0 2px; border-radius:3px; font-size:12px; }
-.edit-btn { background:#ff9800; color:white; border:none; cursor:pointer; }
-.edit-btn:hover { background:#f57c00; }
-.delete-btn { background:#d32f2f; color:white; border:none; cursor:pointer; }
+.delete-btn { background:#d32f2f; color:white; border:none; cursor:pointer; padding:3px 6px; border-radius:3px; font-size:12px; }
 .delete-btn:hover { background:#b71c1c; }
 </style>
 </head>
 <body>
-<h1>📅 Foaie Pontaj + 💰 Cheltuieli</h1>
+<h1>📋 Pontaj + 🧰 Garaj + 💰 Cheltuieli</h1>
 
 <!-- LOGIN -->
-<div id="login-area">
+<section id="login-area">
   <div id="not-logged">
     <input id="login-username" placeholder="Username"><br>
     <input id="login-password" placeholder="Parolă" type="password"><br>
@@ -45,245 +42,174 @@ th { background:#2e7d32; color:white; }
     <p class="muted">Logat ca <strong id="me-username"></strong></p>
     <button id="logout-btn">Deconectează</button>
   </div>
-</div>
+</section>
 
-<!-- PONTAJ -->
-<div id="pontaj-area" style="display:none;">
-  <h2>🕒 Pontaj Zilnic</h2>
-  <label>Data:</label>
+<!-- PONTAJ PRINCIPAL -->
+<section id="pontaj-area" style="display:none;">
+  <h2>🏗️ Pontaj Principal</h2>
   <input type="date" id="work-date">
-  <label>Ora început:</label>
-  <input type="time" id="start-hour">
-  <label>Ora final:</label>
-  <input type="time" id="end-hour">
-  <label>Locul de muncă / Proiect:</label>
-  <input type="text" id="work-place" placeholder="Ex: Birou / Proiect X">
-  <label>Plata pe oră (€):</label>
-  <input type="number" id="hourly-rate" placeholder="Ex: 10" min="0">
-  <button onclick="addEntry()">Adaugă Zi</button>
+  <input type="time" id="start-hour" placeholder="Început">
+  <input type="time" id="end-hour" placeholder="Sfârșit">
+  <input type="text" id="work-place" placeholder="Locul de muncă">
+  <input type="number" id="hourly-rate" placeholder="Plata/oră (€)">
+  <button onclick="addEntry('main')">Adaugă zi</button>
 
   <table>
     <thead>
       <tr>
-        <th>#</th><th>Data</th><th>De la</th><th>Până la</th><th>Ore lucrate</th><th>Locul de muncă</th><th>Plata/oră (€)</th><th>Total (€)</th><th>Acțiuni</th>
+        <th>#</th><th>Data</th><th>De la</th><th>Până la</th><th>Ore</th><th>Loc</th><th>€/oră</th><th>Total</th><th>Șterge</th>
       </tr>
     </thead>
     <tbody id="timesheet-table"></tbody>
   </table>
-  <div id="total">Total Plata: 0 €</div>
-</div>
+  <div class="total" id="total">Total Plata: 0 €</div>
+</section>
 
-<!-- CHELTUIELI -->
-<div id="cheltuieli-area" style="display:none;">
-  <h2>💰 Cheltuieli</h2>
-  <label>Suma primită de la șef (€):</label>
-  <input type="number" id="suma-sef" placeholder="Ex: 100" min="0">
-  <button onclick="adaugaSuma()">Adaugă / Actualizează suma</button>
-  <hr>
-  <label>Cheltuială (€):</label>
-  <input type="number" id="cheltuiala" placeholder="Ex: 10" min="0">
-  <label>Descriere:</label>
-  <input type="text" id="descriere" placeholder="Ex: Mâncare, benzină...">
-  <button onclick="adaugaCheltuiala()">Adaugă cheltuială</button>
+<!-- GARAJ -->
+<section id="garaj-area" style="display:none;">
+  <h2>🧰 Garaj</h2>
+  <input type="date" id="garaj-date">
+  <input type="time" id="garaj-start" placeholder="Început">
+  <input type="time" id="garaj-end" placeholder="Sfârșit">
+  <input type="text" id="garaj-desc" placeholder="Activitate (ex: schimb ulei)">
+  <input type="number" id="garaj-rate" placeholder="Plata/oră (€)">
+  <button onclick="addEntry('garaj')">Adaugă zi Garaj</button>
 
   <table>
     <thead>
       <tr>
-        <th>#</th><th>Descriere</th><th>Suma (€)</th><th>Acțiuni</th>
+        <th>#</th><th>Data</th><th>De la</th><th>Până la</th><th>Ore</th><th>Activitate</th><th>€/oră</th><th>Total</th><th>Șterge</th>
       </tr>
+    </thead>
+    <tbody id="garaj-table"></tbody>
+  </table>
+  <div class="total" id="garaj-total">Total Garaj: 0 €</div>
+</section>
+
+<!-- CHELTUIELI -->
+<section id="cheltuieli-area" style="display:none;">
+  <h2>💰 Cheltuieli</h2>
+  <label>Suma primită de la șef (€):</label>
+  <input type="number" id="suma-sef" placeholder="Ex: 100">
+  <button onclick="adaugaSuma()">Adaugă / Actualizează</button>
+  <hr>
+  <input type="number" id="cheltuiala" placeholder="Cheltuială (€)">
+  <input type="text" id="descriere" placeholder="Descriere (ex: benzină)">
+  <button onclick="adaugaCheltuiala()">Adaugă cheltuială</button>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>Descriere</th><th>Suma</th><th>Șterge</th></tr>
     </thead>
     <tbody id="tabel-cheltuieli"></tbody>
   </table>
-  <div id="total-cheltuieli">Total cheltuit: 0 € | Rămas: 0 €</div>
-</div>
+  <div class="total" id="total-cheltuieli">Total cheltuit: 0 € | Rămas: 0 €</div>
+</section>
 
 <script>
-async function sha256Hex(str){
-  const utf8=new TextEncoder().encode(str);
-  const hash=await crypto.subtle.digest('SHA-256',utf8);
-  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-
+//=== LOGIN SIMPLE ===
+async function sha256Hex(str){const utf8=new TextEncoder().encode(str);const hash=await crypto.subtle.digest('SHA-256',utf8);return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 const STORAGE_USERS='timesheet_users';
 function loadUsers(){return JSON.parse(localStorage.getItem(STORAGE_USERS)||'{}');}
 function saveUsers(u){localStorage.setItem(STORAGE_USERS,JSON.stringify(u));}
+let currentUser=null;
+let userData={timesheet:[], garaj:[], cheltuieli:[], sumaSef:0};
 
-const loginUsername=document.getElementById('login-username');
-const loginPassword=document.getElementById('login-password');
 const loginBtn=document.getElementById('login-btn');
 const showRegBtn=document.getElementById('show-register-btn');
-const registerArea=document.getElementById('register-area');
-const regUsername=document.getElementById('reg-username');
-const regPassword=document.getElementById('reg-password');
 const registerBtn=document.getElementById('register-btn');
 const cancelRegister=document.getElementById('cancel-register');
 const regMsg=document.getElementById('reg-msg');
 const notLoggedDiv=document.getElementById('not-logged');
 const loggedDiv=document.getElementById('logged');
+const pontajArea=document.getElementById('pontaj-area');
+const garajArea=document.getElementById('garaj-area');
+const cheltuieliArea=document.getElementById('cheltuieli-area');
 const meUsernameEl=document.getElementById('me-username');
 const logoutBtn=document.getElementById('logout-btn');
-const pontajArea=document.getElementById('pontaj-area');
-const cheltuieliArea=document.getElementById('cheltuieli-area');
 
-let currentUser=null;
-let userData={timesheet:[], cheltuieli:[], sumaSef:0};
-
-//=== Register / Login ===
-showRegBtn.addEventListener('click',()=>{registerArea.style.display='block';});
-cancelRegister.addEventListener('click',()=>{registerArea.style.display='none'; regMsg.textContent='';});
-
-registerBtn.addEventListener('click', async () => {
-  const u = regUsername.value.trim();
-  const p = regPassword.value;
-  if(!u||!p){regMsg.textContent='Completează toate câmpurile!'; return;}
-  const users = loadUsers();
-  if(users[u]){regMsg.textContent='Username deja folosit!'; return;}
-  const hash = await sha256Hex(p);
-  users[u] = {passHash: hash, timesheet: [], cheltuieli: [], sumaSef: 0};
-  saveUsers(users);
-  regMsg.textContent='Cont creat! Poți să te loghezi.';
-  regUsername.value=''; regPassword.value=''; registerArea.style.display='none';
-});
-
-loginBtn.addEventListener('click', async () => {
-  const u = loginUsername.value.trim();
-  const p = loginPassword.value;
-  if(!u||!p){alert('Completează username și parolă!'); return;}
-  const users = loadUsers();
-  if(!users[u]){alert('Utilizator inexistent!'); return;}
-  const hash = await sha256Hex(p);
-  if(hash!==users[u].passHash){alert('Parolă greșită!'); return;}
-  currentUser=u;
-  userData = JSON.parse(JSON.stringify(users[u]));
-  localStorage.setItem('currentUser', currentUser);
-  onLogin();
-});
-
-logoutBtn.addEventListener('click',()=>{
-  currentUser=null;
-  localStorage.removeItem('currentUser');
-  notLoggedDiv.style.display='block';
-  loggedDiv.style.display='none';
-  pontajArea.style.display='none';
-  cheltuieliArea.style.display='none';
-});
-
-window.onload = () => {
-  const savedUser = localStorage.getItem('currentUser');
-  const users = loadUsers();
-  if(savedUser && users[savedUser]){
-    currentUser=savedUser;
-    userData = JSON.parse(JSON.stringify(users[savedUser]));
-    onLogin();
-  }
-}
+showRegBtn.onclick=()=>registerArea.style.display='block';
+cancelRegister.onclick=()=>{registerArea.style.display='none';regMsg.textContent='';};
+registerBtn.onclick=async()=>{
+  const u=regUsername.value.trim(),p=regPassword.value;
+  if(!u||!p){regMsg.textContent='Completează toate câmpurile!';return;}
+  const users=loadUsers();
+  if(users[u]){regMsg.textContent='Username deja folosit!';return;}
+  users[u]={passHash:await sha256Hex(p),timesheet:[],garaj:[],cheltuieli:[],sumaSef:0};
+  saveUsers(users);regMsg.textContent='Cont creat!';registerArea.style.display='none';
+};
+loginBtn.onclick=async()=>{
+  const u=loginUsername.value.trim(),p=loginPassword.value;
+  if(!u||!p){alert("Completează!");return;}
+  const users=loadUsers();
+  if(!users[u])return alert("Utilizator inexistent!");
+  if(await sha256Hex(p)!==users[u].passHash)return alert("Parolă greșită!");
+  currentUser=u;userData=JSON.parse(JSON.stringify(users[u]));
+  localStorage.setItem('currentUser',u);onLogin();
+};
+logoutBtn.onclick=()=>{currentUser=null;localStorage.removeItem('currentUser');
+  notLoggedDiv.style.display='block';loggedDiv.style.display='none';pontajArea.style.display='none';garajArea.style.display='none';cheltuieliArea.style.display='none';};
+window.onload=()=>{const saved=localStorage.getItem('currentUser');const users=loadUsers();
+  if(saved&&users[saved]){currentUser=saved;userData=users[saved];onLogin();}};
 
 function onLogin(){
   notLoggedDiv.style.display='none';
   loggedDiv.style.display='block';
   pontajArea.style.display='block';
+  garajArea.style.display='block';
   cheltuieliArea.style.display='block';
   meUsernameEl.textContent=currentUser;
-  renderTimesheet();
-  renderCheltuieli();
+  renderTables();
 }
+function saveUser(){const u=loadUsers();u[currentUser]=userData;saveUsers(u);}
 
-//=== Salvare ===
-function saveUserData(){
-  const users=loadUsers();
-  users[currentUser]=userData;
-  saveUsers(users);
-}
-
-//=== Pontaj ===
-function addEntry() {
-  const date = document.getElementById('work-date').value;
-  const start = document.getElementById('start-hour').value;
-  const end = document.getElementById('end-hour').value;
-  const place = document.getElementById('work-place').value.trim();
-  const rate = parseFloat(document.getElementById('hourly-rate').value)||0;
-
-  if(!date||!start||!end||!place||!rate){alert("Completează toate câmpurile!");return;}
-
+//=== PONTAJ & GARAJ ===
+function addEntry(type){
+  const date=document.getElementById(type==='main'?'work-date':'garaj-date').value;
+  const start=document.getElementById(type==='main'?'start-hour':'garaj-start').value;
+  const end=document.getElementById(type==='main'?'end-hour':'garaj-end').value;
+  const desc=document.getElementById(type==='main'?'work-place':'garaj-desc').value.trim();
+  const rate=parseFloat(document.getElementById(type==='main'?'hourly-rate':'garaj-rate').value)||0;
+  if(!date||!start||!end||!desc||!rate){alert("Completează toate câmpurile!");return;}
   const diff=(new Date(`${date}T${end}`)-new Date(`${date}T${start}`))/3600000;
-  const hours=diff>0?diff:0;
-  const total=(hours*rate).toFixed(2);
-
-  const entry={date,start,end,hours:hours.toFixed(2),place,rate,total};
-  userData.timesheet.push(entry);
-  saveUserData();
-  renderTimesheet();
-
-  document.getElementById('work-date').value='';
-  document.getElementById('start-hour').value='';
-  document.getElementById('end-hour').value='';
-  document.getElementById('work-place').value='';
-  document.getElementById('hourly-rate').value='';
+  const hours=diff>0?diff:0;const total=(hours*rate).toFixed(2);
+  const entry={date,start,end,hours:hours.toFixed(2),desc,rate,total};
+  if(type==='main')userData.timesheet.push(entry);else userData.garaj.push(entry);
+  saveUser();renderTables();
 }
-
-function renderTimesheet(){
-  const tbody=document.getElementById('timesheet-table');
-  tbody.innerHTML='';
-  let totalPayment=0;
-  userData.timesheet.forEach((e,i)=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td><td>${e.date}</td><td>${e.start}</td><td>${e.end}</td><td>${e.hours}</td><td>${e.place}</td><td>${e.rate}</td><td>${e.total}</td>
-    <td><button class="delete-btn" onclick="deleteEntry(${i})">Șterge</button></td>`;
-    tbody.appendChild(tr);
-    totalPayment+=parseFloat(e.total);
-  });
-  document.getElementById('total').textContent=`Total Plata: ${totalPayment.toFixed(2)} €`;
-}
-
-function deleteEntry(i){
-  if(confirm("Sigur vrei să ștergi această zi?")){
-    userData.timesheet.splice(i,1);
-    saveUserData();
-    renderTimesheet();
-  }
-}
-
-//=== Cheltuieli ===
-function adaugaSuma(){
-  const suma=parseFloat(document.getElementById('suma-sef').value)||0;
-  userData.sumaSef+=suma;
-  saveUserData();
+function renderTables(){
+  const makeTable=(data,tbodyId,totalId)=>{
+    const tbody=document.getElementById(tbodyId);tbody.innerHTML='';let sum=0;
+    data.forEach((e,i)=>{const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${i+1}</td><td>${e.date}</td><td>${e.start}</td><td>${e.end}</td><td>${e.hours}</td><td>${e.desc}</td><td>${e.rate}</td><td>${e.total}</td>
+      <td><button class='delete-btn' onclick="del('${tbodyId}',${i})">X</button></td>`;
+      tbody.appendChild(tr);sum+=parseFloat(e.total);});
+    document.getElementById(totalId).textContent=`Total: ${sum.toFixed(2)} €`;
+  };
+  makeTable(userData.timesheet,'timesheet-table','total');
+  makeTable(userData.garaj,'garaj-table','garaj-total');
   renderCheltuieli();
-  document.getElementById('suma-sef').value='';
+}
+function del(tbody,i){
+  if(tbody==='timesheet-table')userData.timesheet.splice(i,1);
+  else if(tbody==='garaj-table')userData.garaj.splice(i,1);
+  else userData.cheltuieli.splice(i,1);
+  saveUser();renderTables();
 }
 
+//=== CHELTUIELI ===
+function adaugaSuma(){const s=parseFloat(document.getElementById('suma-sef').value)||0;userData.sumaSef+=s;saveUser();renderCheltuieli();}
 function adaugaCheltuiala(){
-  const s=parseFloat(document.getElementById('cheltuiala').value)||0;
-  const d=document.getElementById('descriere').value.trim();
-  if(!s||!d){alert("Completează suma și descrierea!");return;}
-  userData.cheltuieli.push({descriere:d,suma:s});
-  saveUserData();
-  renderCheltuieli();
-  document.getElementById('cheltuiala').value='';
-  document.getElementById('descriere').value='';
+  const s=parseFloat(document.getElementById('cheltuiala').value)||0;const d=document.getElementById('descriere').value.trim();
+  if(!s||!d){alert("Completează!");return;}userData.cheltuieli.push({descriere:d,suma:s});saveUser();renderCheltuieli();
 }
-
 function renderCheltuieli(){
-  const tbody=document.getElementById('tabel-cheltuieli');
-  tbody.innerHTML='';
-  let total=0;
-  userData.cheltuieli.forEach((c,i)=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td><td>${c.descriere}</td><td>${c.suma.toFixed(2)}</td>
-    <td><button class="delete-btn" onclick="stergeCheltuiala(${i})">Șterge</button></td>`;
-    tbody.appendChild(tr);
-    total+=parseFloat(c.suma);
-  });
+  const tbody=document.getElementById('tabel-cheltuieli');tbody.innerHTML='';let total=0;
+  userData.cheltuieli.forEach((c,i)=>{const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${i+1}</td><td>${c.descriere}</td><td>${c.suma.toFixed(2)}</td><td><button class='delete-btn' onclick="del('tabel-cheltuieli',${i})">X</button></td>`;
+    tbody.appendChild(tr);total+=c.suma;});
   const ramas=userData.sumaSef-total;
   document.getElementById('total-cheltuieli').textContent=`Total cheltuit: ${total.toFixed(2)} € | Rămas: ${ramas.toFixed(2)} €`;
-}
-
-function stergeCheltuiala(i){
-  if(confirm("Ștergi această cheltuială?")){
-    userData.cheltuieli.splice(i,1);
-    saveUserData();
-    renderCheltuieli();
-  }
 }
 </script>
 </body>
