@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Pontaj + Garaj + Cheltuieli</title>
+<title>Apartamente + Depozit + Cheltuieli</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f0f0; padding:20px; }
 h1,h2 { color:#2e7d32; }
@@ -21,7 +21,7 @@ th { background:#2e7d32; color:white; }
 </style>
 </head>
 <body>
-<h1>📋 Pontaj + 🧰 Garaj + 💰 Cheltuieli</h1>
+<h1>🏢 Apartamente + 🏭 Depozit + 💰 Cheltuieli</h1>
 
 <!-- LOGIN -->
 <section id="login-area">
@@ -44,9 +44,9 @@ th { background:#2e7d32; color:white; }
   </div>
 </section>
 
-<!-- PONTAJ PRINCIPAL -->
-<section id="pontaj-area" style="display:none;">
-  <h2>🏗️ Pontaj Principal</h2>
+<!-- APARTAMENTE -->
+<section id="apartamente-area" style="display:none;">
+  <h2>🏢 Apartamente</h2>
   <input type="date" id="work-date">
   <input type="time" id="start-hour" placeholder="Început">
   <input type="time" id="end-hour" placeholder="Sfârșit">
@@ -62,18 +62,18 @@ th { background:#2e7d32; color:white; }
     </thead>
     <tbody id="timesheet-table"></tbody>
   </table>
-  <div class="total" id="total">Total Plata: 0 €</div>
+  <div class="total" id="total">Total Apartamente: 0 €</div>
 </section>
 
-<!-- GARAJ -->
-<section id="garaj-area" style="display:none;">
-  <h2>🧰 Garaj</h2>
+<!-- DEPOZIT -->
+<section id="depozit-area" style="display:none;">
+  <h2>🏭 Depozit</h2>
   <input type="date" id="garaj-date">
   <input type="time" id="garaj-start" placeholder="Început">
   <input type="time" id="garaj-end" placeholder="Sfârșit">
-  <input type="text" id="garaj-desc" placeholder="Activitate (ex: schimb ulei)">
+  <input type="text" id="garaj-desc" placeholder="Activitate (ex: sortare materiale)">
   <input type="number" id="garaj-rate" placeholder="Plata/oră (€)">
-  <button onclick="addEntry('garaj')">Adaugă zi Garaj</button>
+  <button onclick="addEntry('garaj')">Adaugă zi Depozit</button>
 
   <table>
     <thead>
@@ -83,7 +83,7 @@ th { background:#2e7d32; color:white; }
     </thead>
     <tbody id="garaj-table"></tbody>
   </table>
-  <div class="total" id="garaj-total">Total Garaj: 0 €</div>
+  <div class="total" id="garaj-total">Total Depozit: 0 €</div>
 </section>
 
 <!-- CHELTUIELI -->
@@ -94,7 +94,7 @@ th { background:#2e7d32; color:white; }
   <button onclick="adaugaSuma()">Adaugă / Actualizează</button>
   <hr>
   <input type="number" id="cheltuiala" placeholder="Cheltuială (€)">
-  <input type="text" id="descriere" placeholder="Descriere (ex: benzină)">
+  <input type="text" id="descriere" placeholder="Descriere (ex: combustibil)">
   <button onclick="adaugaCheltuiala()">Adaugă cheltuială</button>
 
   <table>
@@ -122,8 +122,8 @@ const cancelRegister=document.getElementById('cancel-register');
 const regMsg=document.getElementById('reg-msg');
 const notLoggedDiv=document.getElementById('not-logged');
 const loggedDiv=document.getElementById('logged');
-const pontajArea=document.getElementById('pontaj-area');
-const garajArea=document.getElementById('garaj-area');
+const apartamenteArea=document.getElementById('apartamente-area');
+const depozitArea=document.getElementById('depozit-area');
 const cheltuieliArea=document.getElementById('cheltuieli-area');
 const meUsernameEl=document.getElementById('me-username');
 const logoutBtn=document.getElementById('logout-btn');
@@ -148,22 +148,22 @@ loginBtn.onclick=async()=>{
   localStorage.setItem('currentUser',u);onLogin();
 };
 logoutBtn.onclick=()=>{currentUser=null;localStorage.removeItem('currentUser');
-  notLoggedDiv.style.display='block';loggedDiv.style.display='none';pontajArea.style.display='none';garajArea.style.display='none';cheltuieliArea.style.display='none';};
+  notLoggedDiv.style.display='block';loggedDiv.style.display='none';apartamenteArea.style.display='none';depozitArea.style.display='none';cheltuieliArea.style.display='none';};
 window.onload=()=>{const saved=localStorage.getItem('currentUser');const users=loadUsers();
   if(saved&&users[saved]){currentUser=saved;userData=users[saved];onLogin();}};
 
 function onLogin(){
   notLoggedDiv.style.display='none';
   loggedDiv.style.display='block';
-  pontajArea.style.display='block';
-  garajArea.style.display='block';
+  apartamenteArea.style.display='block';
+  depozitArea.style.display='block';
   cheltuieliArea.style.display='block';
   meUsernameEl.textContent=currentUser;
   renderTables();
 }
 function saveUser(){const u=loadUsers();u[currentUser]=userData;saveUsers(u);}
 
-//=== PONTAJ & GARAJ ===
+//=== APARTAMENTE & DEPOZIT ===
 function addEntry(type){
   const date=document.getElementById(type==='main'?'work-date':'garaj-date').value;
   const start=document.getElementById(type==='main'?'start-hour':'garaj-start').value;
@@ -178,16 +178,16 @@ function addEntry(type){
   saveUser();renderTables();
 }
 function renderTables(){
-  const makeTable=(data,tbodyId,totalId)=>{
+  const makeTable=(data,tbodyId,totalId,title)=>{
     const tbody=document.getElementById(tbodyId);tbody.innerHTML='';let sum=0;
     data.forEach((e,i)=>{const tr=document.createElement('tr');
       tr.innerHTML=`<td>${i+1}</td><td>${e.date}</td><td>${e.start}</td><td>${e.end}</td><td>${e.hours}</td><td>${e.desc}</td><td>${e.rate}</td><td>${e.total}</td>
       <td><button class='delete-btn' onclick="del('${tbodyId}',${i})">X</button></td>`;
       tbody.appendChild(tr);sum+=parseFloat(e.total);});
-    document.getElementById(totalId).textContent=`Total: ${sum.toFixed(2)} €`;
+    document.getElementById(totalId).textContent=`Total ${title}: ${sum.toFixed(2)} €`;
   };
-  makeTable(userData.timesheet,'timesheet-table','total');
-  makeTable(userData.garaj,'garaj-table','garaj-total');
+  makeTable(userData.timesheet,'timesheet-table','total','Apartamente');
+  makeTable(userData.garaj,'garaj-table','garaj-total','Depozit');
   renderCheltuieli();
 }
 function del(tbody,i){
