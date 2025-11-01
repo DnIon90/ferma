@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Apartamente + Depozit + Cheltuieli</title>
+<title>Apartamente + Depozit + Laverie</title>
 <style>
 body { font-family: Arial, sans-serif; background:#f0f0f0; padding:20px; }
 h1,h2 { color:#2e7d32; }
@@ -21,7 +21,7 @@ th { background:#2e7d32; color:white; }
 </style>
 </head>
 <body>
-<h1>🏢 Apartamente + 🏭 Depozit + 💰 Cheltuieli</h1>
+<h1>🏢 Apartamente + 🏭 Depozit + 🧺 Laverie</h1>
 
 <!-- LOGIN -->
 <section id="login-area">
@@ -86,15 +86,15 @@ th { background:#2e7d32; color:white; }
   <div class="total" id="garaj-total">Total Depozit: 0 €</div>
 </section>
 
-<!-- CHELTUIELI -->
-<section id="cheltuieli-area" style="display:none;">
-  <h2>💰 Cheltuieli</h2>
+<!-- LAVERIE -->
+<section id="laverie-area" style="display:none;">
+  <h2>🧺 Laverie</h2>
   <label>Suma primită de la șef (€):</label>
   <input type="number" id="suma-sef" placeholder="Ex: 100">
   <button onclick="adaugaSuma()">Adaugă / Actualizează</button>
   <hr>
   <input type="number" id="cheltuiala" placeholder="Cheltuială (€)">
-  <input type="text" id="descriere" placeholder="Descriere (ex: combustibil)">
+  <input type="text" id="descriere" placeholder="Descriere (ex: detergent)">
   <button onclick="adaugaCheltuiala()">Adaugă cheltuială</button>
 
   <table>
@@ -124,7 +124,7 @@ const notLoggedDiv=document.getElementById('not-logged');
 const loggedDiv=document.getElementById('logged');
 const apartamenteArea=document.getElementById('apartamente-area');
 const depozitArea=document.getElementById('depozit-area');
-const cheltuieliArea=document.getElementById('cheltuieli-area');
+const laverieArea=document.getElementById('laverie-area');
 const meUsernameEl=document.getElementById('me-username');
 const logoutBtn=document.getElementById('logout-btn');
 
@@ -148,7 +148,7 @@ loginBtn.onclick=async()=>{
   localStorage.setItem('currentUser',u);onLogin();
 };
 logoutBtn.onclick=()=>{currentUser=null;localStorage.removeItem('currentUser');
-  notLoggedDiv.style.display='block';loggedDiv.style.display='none';apartamenteArea.style.display='none';depozitArea.style.display='none';cheltuieliArea.style.display='none';};
+  notLoggedDiv.style.display='block';loggedDiv.style.display='none';apartamenteArea.style.display='none';depozitArea.style.display='none';laverieArea.style.display='none';};
 window.onload=()=>{const saved=localStorage.getItem('currentUser');const users=loadUsers();
   if(saved&&users[saved]){currentUser=saved;userData=users[saved];onLogin();}};
 
@@ -157,7 +157,7 @@ function onLogin(){
   loggedDiv.style.display='block';
   apartamenteArea.style.display='block';
   depozitArea.style.display='block';
-  cheltuieliArea.style.display='block';
+  laverieArea.style.display='block';
   meUsernameEl.textContent=currentUser;
   renderTables();
 }
@@ -188,7 +188,7 @@ function renderTables(){
   };
   makeTable(userData.timesheet,'timesheet-table','total','Apartamente');
   makeTable(userData.garaj,'garaj-table','garaj-total','Depozit');
-  renderCheltuieli();
+  renderLaverie();
 }
 function del(tbody,i){
   if(tbody==='timesheet-table')userData.timesheet.splice(i,1);
@@ -197,20 +197,8 @@ function del(tbody,i){
   saveUser();renderTables();
 }
 
-//=== CHELTUIELI ===
-function adaugaSuma(){const s=parseFloat(document.getElementById('suma-sef').value)||0;userData.sumaSef+=s;saveUser();renderCheltuieli();}
+//=== LAVERIE ===
+function adaugaSuma(){const s=parseFloat(document.getElementById('suma-sef').value)||0;userData.sumaSef+=s;saveUser();renderLaverie();}
 function adaugaCheltuiala(){
   const s=parseFloat(document.getElementById('cheltuiala').value)||0;const d=document.getElementById('descriere').value.trim();
-  if(!s||!d){alert("Completează!");return;}userData.cheltuieli.push({descriere:d,suma:s});saveUser();renderCheltuieli();
-}
-function renderCheltuieli(){
-  const tbody=document.getElementById('tabel-cheltuieli');tbody.innerHTML='';let total=0;
-  userData.cheltuieli.forEach((c,i)=>{const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td><td>${c.descriere}</td><td>${c.suma.toFixed(2)}</td><td><button class='delete-btn' onclick="del('tabel-cheltuieli',${i})">X</button></td>`;
-    tbody.appendChild(tr);total+=c.suma;});
-  const ramas=userData.sumaSef-total;
-  document.getElementById('total-cheltuieli').textContent=`Total cheltuit: ${total.toFixed(2)} € | Rămas: ${ramas.toFixed(2)} €`;
-}
-</script>
-</body>
-</html>
+  if(!s||!d){alert("Completează!");return;}userData.cheltuieli.push({descr
